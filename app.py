@@ -71,6 +71,14 @@ class Chamado(db.Model):
 # -----------------------------
 # ROTAS PRINCIPAIS E DASHBOARD
 # -----------------------------
+@app.route('/locacao/editar/<int:locacao_id>', methods=['GET', 'POST'])
+def editar_locacao(locacao_id):
+    # ... lógica de edição ...
+    pass
+@app.route('/locacao/excluir/<int:locacao_id>', methods=['POST'])
+def excluir_locacao(locacao_id):
+    # ... lógica de exclusão e redirect ...
+    pass
 # -----------------------------
 # ROTAS PRINCIPAIS E DASHBOARD
 # -----------------------------
