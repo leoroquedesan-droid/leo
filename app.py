@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date, timedelta
 from datetime import datetime as dt
 from sqlalchemy import exc
+import os
 
 app = Flask(__name__)
 app.secret_key = "uma_chave_secreta_aqui_123"
