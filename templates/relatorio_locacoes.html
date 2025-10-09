@@ -37,6 +37,18 @@
         .voltar { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #4f46e5; font-weight: 600; }
         .valor { font-weight: 700; color: #059669; }
         .total { background: #e0f7fa; font-weight: 700; }
+        
+        /* NOVO: Estilos para a coluna de Ações */
+        .acoes a {
+            margin-right: 8px;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: color 0.2s;
+        }
+        .acoes .btn-editar { color: #4f46e5; } /* Azul para Editar */
+        .acoes .btn-excluir { color: #dc2626; } /* Vermelho para Excluir */
+        .acoes .btn-editar:hover { color: #3730a3; }
+        .acoes .btn-excluir:hover { color: #991b1b; }
     </style>
 </head>
 <body>
@@ -54,6 +66,7 @@
                     <th>Valor Entrada</th>
                     <th>Valor 2ª Parte</th>
                     <th>Total da Locação</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,6 +79,16 @@
                     <td class="valor">R$ {{ "%.2f" | format(loc.valor_entrada) }}</td>
                     <td class="valor">R$ {{ "%.2f" | format(loc.valor_segunda_parte) }}</td>
                     <td class="valor total">R$ {{ "%.2f" | format(loc.valor_entrada + loc.valor_segunda_parte) }}</td>
+                    
+                    <td class="acoes">
+                        <a href="{{ url_for('editar_locacao', locacao_id=loc.id) }}" class="btn-editar" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        
+                        <a href="{{ url_for('excluir_locacao', locacao_id=loc.id) }}" class="btn-excluir" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir esta locação?');">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
