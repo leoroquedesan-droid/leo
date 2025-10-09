@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Locações</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e4e6eb; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 30px; color: #1f2937; font-size: 2em; }
+
+        .tabela-locacoes {
+            width: 95%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tabela-locacoes th, .tabela-locacoes td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        .tabela-locacoes th {
+            background-color: #f59e0b; /* Laranja da Locação */
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .tabela-locacoes tr:nth-child(even) { background-color: #f9fafb; }
+        .tabela-locacoes tr:hover { background-color: #fffbeb; }
+
+        .voltar { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #4f46e5; font-weight: 600; }
+        .valor { font-weight: 700; color: #059669; }
+        .total { background: #e0f7fa; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <h1><i class="fas fa-calendar-check"></i> Relatório de Locações Registradas</h1>
+
+    {% if locacoes %}
+    <div style="overflow-x: auto;">
+        <table class="tabela-locacoes">
+            <thead>
+                <tr>
+                    <th>Associado</th>
+                    <th>Local</th>
+                    <th>Data da Locação</th>
+                    <th>Forma Pagamento</th>
+                    <th>Valor Entrada</th>
+                    <th>Valor 2ª Parte</th>
+                    <th>Total da Locação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loc in locacoes %}
+                <tr>
+                    <td>{{ loc.usuario.nome }}</td>
+                    <td>{{ loc.local }}</td>
+                    <td>{{ loc.dia }}</td>
+                    <td>{{ loc.pagamento }}</td>
+                    <td class="valor">R$ {{ "%.2f" | format(loc.valor_entrada) }}</td>
+                    <td class="valor">R$ {{ "%.2f" | format(loc.valor_segunda_parte) }}</td>
+                    <td class="valor total">R$ {{ "%.2f" | format(loc.valor_entrada + loc.valor_segunda_parte) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p style="text-align:center; padding: 20px; background: white; max-width: 600px; margin: 30px auto; border-radius: 8px;">Nenhuma locação registrada.</p>
+    {% endif %}
+
+    <a href="{{ url_for('index') }}" class="voltar">
+        <i class="fas fa-arrow-left"></i> Voltar ao Painel
+    </a>
+</body>
+</html>

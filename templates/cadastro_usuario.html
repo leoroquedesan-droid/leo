@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Novo Associado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e4e6eb; padding: 20px; }
+        .form-container { background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); max-width: 800px; margin: 30px auto; }
+        h1 { color: #1f2937; margin-bottom: 30px; text-align: center; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+        .form-row { display: flex; gap: 20px; margin-bottom: 15px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        .input-group label { font-weight: 600; color: #374151; margin-bottom: 5px; }
+        .input-group input, .input-group select { padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
+        .btn-submit { padding: 12px 25px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1em; font-weight: 700; margin-top: 20px; transition: background 0.2s; }
+        .btn-submit:hover { background: #059669; }
+        .btn-voltar { text-decoration: none; color: #4f46e5; margin-top: 20px; display: inline-block; font-weight: 600; }
+        @media (max-width: 600px) { .form-row { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1><i class="fas fa-user-plus"></i> Cadastro de Associado</h1>
+
+        <form method="POST" action="{{ url_for('cadastro') }}">
+
+            <h2>Dados Pessoais</h2>
+            <div class="form-row">
+                <div class="input-group" style="flex: 2;">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label for="idade">Idade</label>
+                    <input type="number" id="idade" name="idade" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group" style="flex: 1;">
+                    <label for="numero">Telefone/WhatsApp</label>
+                    <input type="text" id="numero" name="numero" placeholder="(XX) XXXXX-XXXX" required>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label for="pagamento">Dia do Pagamento (1 a 31)</label>
+                    <input type="number" id="pagamento" name="pagamento" min="1" max="31" required>
+                </div>
+            </div>
+
+            <h2>Endereço</h2>
+            <div class="form-row">
+                <div class="input-group" style="flex: 1;">
+                    <label for="cep">CEP</label>
+                    <input type="text" id="cep" name="cep" onblur="buscarCep(this.value)" required>
+                </div>
+                <div class="input-group" style="flex: 2;">
+                    <label for="rua">Rua</label>
+                    <input type="text" id="rua" name="rua" required>
+                </div>
+                <div class="input-group" style="flex: 0.5;">
+                    <label for="numero_casa">Nº Casa</label>
+                    <input type="text" id="numero_casa" name="numero_casa" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group" style="flex: 2;">
+                    <label for="bairro">Bairro</label>
+                    <input type="text" id="bairro" name="bairro" required>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label for="cidade">Cidade</label>
+                    <input type="text" id="cidade" name="cidade" required>
+                </div>
+                <div class="input-group" style="flex: 0.5;">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado" required>
+                        <option value="">UF</option>
+                        <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option>
+                        <option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option>
+                        <option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
+                        <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option>
+                        <option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option>
+                        <option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option>
+                        <option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Cadastrar Associado</button>
+            </div>
+        </form>
+
+        <a href="{{ url_for('usuarios') }}" class="btn-voltar">
+            <i class="fas fa-arrow-left"></i> Voltar para a lista
+        </a>
+    </div>
+
+    <script>
+        function limpa_formulario_cep() {
+            document.getElementById('rua').value = ("");
+            document.getElementById('bairro').value = ("");
+            document.getElementById('cidade').value = ("");
+            document.getElementById('estado').selectedIndex = 0;
+        }
+
+        function meu_callback(conteudo) {
+            if (!("erro" in conteudo)) {
+                document.getElementById('rua').value = (conteudo.logradouro);
+                document.getElementById('bairro').value = (conteudo.bairro);
+                document.getElementById('cidade').value = (conteudo.localidade);
+
+                let estadoSelect = document.getElementById('estado');
+                let estadoOption = Array.from(estadoSelect.options).find(option => option.value === conteudo.uf);
+                if (estadoOption) {
+                    estadoOption.selected = true;
+                }
+
+                document.getElementById('numero_casa').focus();
+
+            } else {
+                limpa_formulario_cep();
+                alert("CEP não encontrado.");
+            }
+        }
+
+        function buscarCep(valor) {
+            let cep = valor.replace(/\D/g, '');
+
+            if (cep != "") {
+                let validacep = /^[0-9]{8}$/;
+
+                if(validacep.test(cep)) {
+
+                    document.getElementById('rua').value = "...";
+                    document.getElementById('bairro').value = "...";
+                    document.getElementById('cidade').value = "...";
+
+                    let script = document.createElement('script');
+                    script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=meu_callback';
+                    document.body.appendChild(script);
+
+                } else {
+                    limpa_formulario_cep();
+                    alert("Formato de CEP inválido.");
+                }
+            } else {
+                limpa_formulario_cep();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Principal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* GERAL */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e4e6eb;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR (Barra Lateral) */
+        .sidebar {
+            width: 80px;
+            background-color: #1f2937;
+            color: white;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            height: 100%;
+            transition: width 0.3s;
+            z-index: 1000;
+        }
+
+        /* NOVO CSS PARA ALINHAMENTO DE BORDA */
+        .sidebar:hover {
+            width: 250px;
+            align-items: flex-start; /* Alinha todos os itens à esquerda */
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            /* Esta linha força o conteúdo para a borda esquerda, corrigindo o alinhamento: */
+            justify-content: flex-start;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+        .sidebar a:hover {
+            background-color: #3b82f6;
+        }
+        /* Classe para item ativo (destaque) */
+        .sidebar a.active {
+            background-color: #3b82f6;
+        }
+
+        .sidebar i {
+            font-size: 1.5em;
+            margin: 0 10px;
+            width: 30px;
+        }
+        .sidebar .link-text {
+            display: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-left: 10px;
+        }
+        .sidebar:hover .link-text {
+            display: inline;
+        }
+        .sidebar .logo {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #10b981;
+        }
+        .sidebar .logout {
+            margin-top: auto;
+            background-color: #ef4444;
+        }
+        .sidebar .logout:hover {
+            background-color: #cc3333;
+        }
+        .sidebar .btn-cadastro-rapido { /* Cor verde para o botão de cadastro rápido */
+            background-color: #059669;
+        }
+        .sidebar .btn-cadastro-rapido:hover {
+            background-color: #047857;
+        }
+
+        /* CONTEÚDO PRINCIPAL (Métricas em) */
+        .main-content { margin-left: 80px; padding: 30px; flex-grow: 1; width: calc(100% - 80px); }
+        h1 { color: #1f2937; margin-bottom: 30px; font-size: 2em; }
+        .flash-message { margin-bottom: 20px; padding: 10px; border-radius: 8px; font-weight: 500; }
+        .success { background-color: #d1fae5; color: #065f46; }
+        .error, .danger { background-color: #fee2e2; color: #991b1b; }
+        .card-container { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 40px; }
+        .metric-card { background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); width: calc(20% - 16px); min-width: 180px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; border-left: 5px solid #3b82f6; transition: transform 0.2s; }
+        .card-title { font-size: 0.9em; color: #6b7280; text-transform: uppercase; margin-bottom: 10px; }
+        .card-value { font-size: 2em; font-weight: 700; color: #1f2937; }
+        .card-icon { color: #3b82f6; font-size: 1.5em; align-self: flex-end; }
+        .tabela-locacoes { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; }
+        .tabela-locacoes th, .tabela-locacoes td { padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        .tabela-locacoes th { background-color: #1f2937; color: white; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><i class="fas fa-cube"></i></div>
+        <a href="{{ url_for('index') }}" title="Painel Principal" {% if request.endpoint == 'index' %}class="active"{% endif %}>
+            <i class="fas fa-home"></i><span class="link-text">Painel Principal</span>
+        </a>
+        <a href="{{ url_for('locacao_salas') }}" title="Locação de Salões" {% if request.endpoint == 'locacao_salas' or request.endpoint == 'salvar_locacao' %}class="active"{% endif %}>
+            <i class="fas fa-building"></i><span class="link-text">Locação de Salões</span>
+        </a>
+        <a href="{{ url_for('registrar_pagamento') }}" title="Registrar Pagamento" {% if request.endpoint == 'registrar_pagamento' %}class="active"{% endif %}>
+            <i class="fas fa-money-check-alt"></i><span class="link-text">Registrar Pagamento</span>
+        </a>
+        <a href="{{ url_for('usuarios') }}" title="Usuários" {% if request.endpoint == 'usuarios' or request.endpoint == 'editar_usuario' or request.endpoint == 'excluir_usuario' %}class="active"{% endif %}>
+            <i class="fas fa-users"></i><span class="link-text">Usuários</span>
+        </a>
+        <a href="{{ url_for('relatorio_mensalidades') }}" title="Relatório de Mensalidades" {% if request.endpoint == 'relatorio_mensalidades' or request.endpoint == 'listar_pagamentos' %}class="active"{% endif %}>
+            <i class="fas fa-chart-line"></i><span class="link-text">Relatório Mensalidades</span>
+        </a>
+        <a href="{{ url_for('relatorio_locacoes') }}" title="Relatório de Locações" {% if request.endpoint == 'relatorio_locacoes' %}class="active"{% endif %}>
+            <i class="fas fa-calendar-check"></i><span class="link-text">Relatório Locações</span>
+        </a>
+        <a href="{{ url_for('chamados') }}" title="Chamar Ajuda" {% if request.endpoint == 'chamados' %}class="active"{% endif %}>
+            <i class="fas fa-headset"></i><span class="link-text">Chamar Ajuda</span>
+        </a>
+
+        <a href="{{ url_for('cadastro') }}" title="Novo Cadastro Rápido" class="btn-cadastro-rapido" {% if request.endpoint == 'cadastro' %}class="active"{% endif %}>
+            <i class="fas fa-user-plus"></i><span class="link-text">Novo Cadastro Rápido</span>
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="logout" title="Sair">
+            <i class="fas fa-sign-out-alt"></i><span class="link-text">Sair</span>
+        </a>
+    </div>
+
+    <div class="main-content">
+        <h1>Painel Principal</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card-container">
+            <div class="metric-card">
+                <div class="card-header">
+                    <div class="card-title">Total de Associados</div>
+                    <div class="card-value">{{ total_usuarios }}</div>
+                </div>
+                <i class="fas fa-users card-icon"></i>
+            </div>
+
+            <div class="metric-card" style="border-left-color: #10b981;">
+                <div class="card-header">
+                    <div class="card-title">Novos Associados (30 Dias)</div>
+                    <div class="card-value">{{ novos_usuarios_30d }}</div>
+                </div>
+                <i class="fas fa-user-plus card-icon" style="color: #10b981;"></i>
+            </div>
+
+            <div class="metric-card" style="border-left-color: #ef4444;">
+                <div class="card-header">
+                    <div class="card-title">Mensalidades em Atraso</div>
+                    <div class="card-value">{{ atrasos_count }}</div>
+                </div>
+                <i class="fas fa-exclamation-triangle card-icon" style="color: #ef4444;"></i>
+            </div>
+
+            <div class="metric-card" style="border-left-color: #f59e0b;">
+                <div class="card-header">
+                    <div class="card-title">Locações Agendadas</div>
+                    <div class="card-value">{{ locacoes_futuras_count }}</div>
+                </div>
+                <i class="fas fa-calendar-alt card-icon" style="color: #f59e0b;"></i>
+            </div>
+
+            <div class="metric-card" style="border-left-color: #8b5cf6;">
+                <div class="card-header">
+                    <div class="card-title">Locações em 3 Dias</div>
+                    <div class="card-value">{{ proximos | length }}</div>
+                </div>
+                <i class="fas fa-hourglass-half card-icon" style="color: #8b5cf6;"></i>
+            </div>
+        </div>
+
+        <h2 class="table-title">Próximas Locações (3 Dias)</h2>
+        {% if proximos %}
+        <table class="tabela-locacoes">
+            <thead>
+                <tr>
+                    <th>Local</th>
+                    <th>Data</th>
+                    <th>Associado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loc in proximos %}
+                <tr>
+                    <td>{{ loc.local }}</td>
+                    <td>{{ loc.dia }}</td>
+                    <td>{{ loc.usuario.nome }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #6b7280; padding: 10px;">Nenhuma locação agendada para os próximos 3 dias.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
