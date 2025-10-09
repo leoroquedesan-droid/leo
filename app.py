@@ -399,6 +399,10 @@ def setup_initial_data(app):
             pass
 
 
+
 if __name__ == "__main__":
-    setup_initial_data(app)
-    app.run(debug=True)
+    # Obtém a porta do ambiente, caso contrário, usa 5000 (para testes locais)
+    port = int(os.environ.get("PORT", 5000)) 
+    
+    # Roda o aplicativo, escutando em '0.0.0.0' para que seja acessível externamente
+    app.run(host='0.0.0.0', port=port)
