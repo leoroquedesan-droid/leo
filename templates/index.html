@@ -82,6 +82,9 @@
             box-shadow: 0 8px 12px rgba(0,0,0,0.1);
         }
         .card.danger { border-left-color: #ef4444; }
+        /* Novo estilo para destaque do botão de pagamento */
+        .card.success { border-left-color: #059669; }
+
         .card-title {
             font-size: 0.9em;
             color: #6b7280;
@@ -172,6 +175,16 @@
                 </div>
             </a>
 
+            <a href="{{ url_for('registrar_pagamento') }}" class="card-link">
+                <div class="card success">
+                    <div class="card-title">REGISTRAR NOVO PAGAMENTO</div>
+                    <div class="card-value"><i class="fas fa-arrow-right"></i></div>
+                    <div class="card-icon"><i class="fas fa-credit-card"></i></div>
+                </div>
+            </a>
+            </div>
+
+        <div class="card-row">
             </div>
 
         <div class="locacoes-list">
