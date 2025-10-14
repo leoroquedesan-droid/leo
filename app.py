@@ -17,6 +17,18 @@ db = SQLAlchemy(app)
 
 
 # -----------------------------
+# FUNÇÃO AUXILIAR PARA O JINJA2 (today_iso)
+# -----------------------------
+def today_iso():
+    """Retorna a data de hoje no formato ISO (YYYY-MM-DD) para preencher campos date."""
+    return date.today().isoformat()
+
+
+# Registra a função para que ela possa ser usada nos templates Jinja2 (como registrar_pagamento.html)
+app.jinja_env.globals.update(today_iso=today_iso)
+
+
+# -----------------------------
 # MODELOS (TABELAS)
 # -----------------------------
 class Usuario(db.Model):
@@ -29,7 +41,7 @@ class Usuario(db.Model):
     numero = db.Column(db.String(20))
     pagamento = db.Column(db.Date)
     cep = db.Column(db.String(10))
-    endereco = db.Column(db.String(200))  # Campo correto para o endereço/rua
+    endereco = db.Column(db.String(200))
     numero_casa = db.Column(db.String(10))
     bairro = db.Column(db.String(100))
     cidade = db.Column(db.String(100))
@@ -82,7 +94,7 @@ class Chamado(db.Model):
 
 
 # -----------------------------
-# FUNÇÕES AUXILIARES
+# FUNÇÕES AUXILIARES DE ROTA
 # -----------------------------
 def login_required(f):
     def wrap(*args, **kwargs):
@@ -103,7 +115,7 @@ def login_required(f):
 def index():
     hoje = date.today()
 
-    # Dados para cards principais (apenas os mantidos)
+    # Dados para cards principais
     total_usuarios = Usuario.query.count()
     # Atrasos: pagamento não nulo E pagamento anterior a hoje
     atrasos_count = Usuario.query.filter(Usuario.pagamento != None, Usuario.pagamento < hoje).count()
@@ -113,6 +125,7 @@ def index():
     locacoes = Salao.query.all()
     for loc in locacoes:
         try:
+            # Assumindo que loc.dia é uma string ISO formatada (YYYY-MM-DD)
             data_loc = date.fromisoformat(loc.dia)
             if 0 <= (data_loc - hoje).days <= 3:
                 proximos_locacoes.append(loc)
@@ -158,7 +171,6 @@ def logout():
 @login_required
 def cadastro():
     if request.method == "POST":
-        # Usando .get() para aumentar a robustez e evitar KeyError
         try:
             # Campos obrigatórios
             nome = request.form["nome"]
@@ -171,13 +183,14 @@ def cadastro():
 
             # Campos de endereço (usando .get() para segurança)
             cep = request.form.get("cep")
-            endereco = request.form.get("endereco")  # Correção: lendo 'endereco'
+            endereco = request.form.get("endereco")
             numero_casa = request.form.get("numero_casa")
             bairro = request.form.get("bairro")
             cidade = request.form.get("cidade")
             estado = request.form.get("estado")
 
         except KeyError as e:
+            # O erro BadKeyRequestKeyError (como no caso de 'salao') indica que a chave não existe
             flash(f"Erro: Campo obrigatório do formulário ausente ({e}).", "danger")
             return redirect(url_for("cadastro"))
 
@@ -234,7 +247,9 @@ def usuarios():
         lista = Usuario.query.filter(Usuario.nome.ilike(f"%{nome_pesquisa}%")).all()
     else:
         lista = Usuario.query.all()
-    return render_template("usuarios.html", usuarios=lista)
+
+    # CORREÇÃO: Passando a data de hoje explicitamente para o template
+    return render_template("usuarios.html", usuarios=lista, hoje=date.today())
 
 
 @app.route("/editar_usuario/<int:id>", methods=["GET", "POST"])
@@ -287,13 +302,14 @@ def locacao_salas():
 @app.route("/salvar_locacao", methods=["POST"])
 @login_required
 def salvar_locacao():
-    # USANDO .get() PARA ROBUSTEZ: Corrigindo o KeyError
+    # USANDO .get() PARA ROBUSTEZ: Evita BadKeyRequestKeyError
     salao_local = request.form.get("salao", "")
     dia = request.form.get("dia", "")
     pagamento = request.form.get("pagamento", "")
     usuario_id = request.form.get("usuario", None)
 
     if not salao_local or not usuario_id or not dia:
+        # Flash message para indicar o erro no formulário
         flash("Os campos Local, Dia e Usuário são obrigatórios para a locação.", "danger")
         return redirect(url_for("locacao_salas"))
 
@@ -301,6 +317,7 @@ def salvar_locacao():
     valor_segunda_parte = request.form.get("valor_segunda_parte", 0.0)
 
     try:
+        # Tenta converter para float
         entrada_float = float(valor_entrada)
         segunda_parte_float = float(valor_segunda_parte)
     except ValueError:
@@ -379,19 +396,30 @@ def registrar_pagamento():
     usuarios = Usuario.query.all()
     if request.method == "POST":
         usuario_id = request.form["usuario"]
-        data_pagamento = dt.strptime(request.form["data_pagamento"], "%Y-%m-%d").date()
-        proximo_pagamento = dt.strptime(request.form["proximo_pagamento"], "%Y-%m-%d").date()
+        # Garante que a conversão da string de data para objeto date funcione
+        try:
+            data_pagamento = dt.strptime(request.form["data_pagamento"], "%Y-%m-%d").date()
+            proximo_pagamento = dt.strptime(request.form["proximo_pagamento"], "%Y-%m-%d").date()
+        except ValueError:
+            flash("Erro no formato de data. Use YYYY-MM-DD.", "danger")
+            return redirect(url_for("registrar_pagamento"))
+
         pagamento = Pagamento(
             usuario_id=usuario_id,
             data_pagamento=data_pagamento,
             proximo_pagamento=proximo_pagamento
         )
         db.session.add(pagamento)
+
+        # Atualiza o próximo vencimento do usuário na tabela Usuario
         usuario = Usuario.query.get(usuario_id)
-        usuario.pagamento = proximo_pagamento
+        if usuario:
+            usuario.pagamento = proximo_pagamento
+
         db.session.commit()
         flash(f"Pagamento registrado para {usuario.nome}!", "success")
         return redirect(url_for("listar_pagamentos"))
+
     return render_template("registrar_pagamento.html", usuarios=usuarios)
 
 
@@ -419,20 +447,21 @@ def listar_pagamentos():
 def relatorio_mensalidades():
     hoje = date.today()
 
-    # 1. PEGAR PARÂMETROS DE PESQUISA (implementação da busca por nome)
     nome_pesquisa = request.args.get('nome_pesquisa')
     mes_str = request.args.get('mes', hoje.strftime('%Y-%m'))
 
-    # 2. QUERY BASE: FILTROS GERAIS
+    # Query Base para Atrasadas
     atrasadas_query = Usuario.query.filter(
         Usuario.pagamento != None,
         Usuario.pagamento < hoje
     )
+
+    # Query Base para Novos Associados
     novos_associados_query = Usuario.query.filter(
         Usuario.data_registro >= hoje - timedelta(days=30)
     )
 
-    # 3. FILTRO POR NOME (se houver pesquisa, aplicar a todas as listas)
+    # FILTRO POR NOME
     if nome_pesquisa:
         atrasadas_query = atrasadas_query.filter(
             Usuario.nome.ilike(f"%{nome_pesquisa}%")
@@ -444,7 +473,7 @@ def relatorio_mensalidades():
     mensalidades_atrasadas = atrasadas_query.order_by(Usuario.pagamento.asc()).all()
     novos_associados = novos_associados_query.order_by(Usuario.data_registro.desc()).all()
 
-    # 4. FILTRO DE PAGAMENTOS DO MÊS
+    # FILTRO DE PAGAMENTOS DO MÊS
     try:
         ano = int(mes_str.split('-')[0])
         mes = int(mes_str.split('-')[1])
@@ -458,7 +487,7 @@ def relatorio_mensalidades():
         db.extract('month', Pagamento.data_pagamento) == mes
     )
 
-    # Adiciona filtro de nome aos pagamentos do mês
+    # Filtro de nome para Pagamentos do Mês
     if nome_pesquisa:
         pagamentos_mes_query = pagamentos_mes_query.filter(
             Usuario.nome.ilike(f"%{nome_pesquisa}%")
@@ -471,7 +500,7 @@ def relatorio_mensalidades():
                            pagamentos_mes=pagamentos_mes,
                            novos_associados=novos_associados,
                            mes_selecionado=mes_str,
-                           nome_pesquisa=nome_pesquisa)  # Passa o termo de pesquisa de volta
+                           nome_pesquisa=nome_pesquisa)
 
 
 # -----------------------------
@@ -490,6 +519,7 @@ def setup_initial_data(app):
     with app.app_context():
         db.create_all()
         try:
+            # Cria usuários de login iniciais se não existirem
             if not Login.query.first():
                 leo = Login(nome='leo')
                 leo.set_password('admin')
