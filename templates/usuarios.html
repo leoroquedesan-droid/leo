@@ -2,190 +2,154 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Associados Cadastrados</title>
+    <title>Lista de Associados</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* BASE & LAYOUT */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #e4e6eb;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        h1 {
-            text-align: center;
-            color: #1f2937;
-            margin-bottom: 30px;
-            font-size: 2em;
-        }
+        /* (Seu CSS aqui) */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e4e6eb; padding: 20px; }
+        .container { max-width: 95%; margin: 20px auto; }
+        h1 { text-align: center; margin-bottom: 30px; color: #1f2937; font-size: 2em; }
 
-        /* BARRA DE AÇÕES (Pesquisa e Novo Usuário) */
-        .action-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 0 auto 30px auto;
-            max-width: 1200px;
+        /* Estilos da Tabela */
+        .tabela {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .tabela th, .tabela td {
             padding: 15px;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        /* PESQUISA */
-        .pesquisa form {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .pesquisa label { font-weight: 600; color: #374151; }
-        .pesquisa input[type="text"] {
-            padding: 10px 15px;
-            width: 250px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-        }
-        .pesquisa button {
-            padding: 10px 15px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-        .pesquisa button:hover { background: #2563eb; }
-
-        /* BOTÃO NOVO USUÁRIO */
-        .btn-novo-usuario {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 8px;
-            background: #10b981; /* Verde moderno */
-            color: white;
-            font-weight: 600;
-            transition: background 0.2s, transform 0.1s;
-        }
-        .btn-novo-usuario:hover { background: #059669; transform: translateY(-1px); }
-
-        /* TABELA */
-        .table-container {
-            overflow-x: auto;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-radius: 12px;
-            background: white;
-            max-width: 1200px;
-            margin: auto;
-        }
-        table { min-width: 1000px; width: 100%; border-collapse: separate; border-spacing: 0; }
-        th, td {
-            padding: 15px;
-            border: none;
             border-bottom: 1px solid #e5e7eb;
-            text-align: center;
+            text-align: left;
             font-size: 0.9em;
         }
-        th {
-            background: #1f2937;
+        .tabela th {
+            background-color: #1f2937;
             color: white;
             font-weight: 700;
-            text-transform: uppercase;
         }
-        tr:nth-child(even) { background: #f9fafb; }
-        tr:hover { background: #eff6ff; }
+        .tabela tr:nth-child(even) { background-color: #f9fafb; }
+        .tabela tr:hover { background-color: #f0f8ff; }
 
-        /* BOTÕES DE AÇÃO */
-        .btn {
+        /* Estilos do Botão */
+        .btn-acao {
             padding: 8px 12px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
             text-decoration: none;
-            border-radius: 6px;
-            color: white;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            margin: 2px;
+            display: inline-block;
+            transition: background-color 0.3s;
         }
-        .btn-editar { background: #f59e0b; }
-        .btn-excluir { background: #ef4444; }
+        .btn-editar { background-color: #4f46e5; color: white; }
+        .btn-excluir { background-color: #dc2626; color: white; }
+        .btn-pagamento { background-color: #059669; color: white; }
+        .btn-editar:hover, .btn-excluir:hover, .btn-pagamento:hover { opacity: 0.9; }
 
-        /* BOTÃO VOLTAR */
-        .voltar {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 25px;
-            padding: 10px 20px;
-            color: #4f46e5;
-            text-decoration: none;
-            font-weight: 600;
-            border-radius: 8px;
-            background: #eef2ff;
-            transition: background 0.2s;
+        /* Estilo do Vencimento */
+        .vencimento-ok { color: #059669; font-weight: 600; }
+        .vencimento-atraso { color: #dc2626; font-weight: 600; }
+        .voltar { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #4f46e5; font-weight: 600; }
+
+        /* Estilo da barra de busca */
+        .search-bar { margin-bottom: 20px; text-align: center; }
+        .search-bar input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-right: 10px;
         }
-        .voltar:hover { background: #e0e7ff; }
+        .search-bar button {
+            padding: 10px 15px;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1><i class="fas fa-users"></i> Associados Cadastrados</h1>
+    <div class="container">
+        <h1><i class="fas fa-users"></i> Gestão de Associados</h1>
 
-    <div class="action-bar">
-        <div class="pesquisa">
-            <form action="{{ url_for('usuarios') }}" method="get">
-                <label for="nome_pesquisa">Pesquisar por Nome:</label>
-                <input type="text" id="nome_pesquisa" name="nome" placeholder="Nome do usuário">
-                <button type="submit"><i class="fas fa-search"></i> Pesquisar</button>
-            </form>
-        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div style="background-color: {{ 'red' if category == 'danger' or category == 'error' else 'green' }}; color: white; padding: 10px; margin-bottom: 20px; text-align: center; border-radius: 5px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-        <a href="{{ url_for('cadastro') }}" class="btn-novo-usuario">
-            <i class="fas fa-plus-circle"></i> Novo Associado
-        </a>
-    </div>
+        <form class="search-bar" method="GET" action="{{ url_for('usuarios') }}">
+            <input type="text" name="nome" placeholder="Pesquisar por nome do associado" value="{{ request.args.get('nome', '') }}">
+            <button type="submit"><i class="fas fa-search"></i> Buscar</button>
+            {% if request.args.get('nome') %}
+                <a href="{{ url_for('usuarios') }}" class="btn-acao btn-excluir" style="margin-left: 10px;">Limpar Busca</a>
+            {% endif %}
+        </form>
 
-    <div class="table-container">
-        <table>
+        <table class="tabela">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Nome</th>
+                    <th>CPF</th>
                     <th>Telefone</th>
-                    <th>Próx. Pag.</th>
+                    <th>Próximo Vencimento</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
-                {% for u in usuarios %}
+                {% for usuario in usuarios %}
                 <tr>
-                    <td>{{ u.id }}</td>
-                    <td>{{ u.nome }}</td>
-                    <td>{{ u.numero }}</td>
-                    <td>{{ u.pagamento.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ usuario.nome }}</td>
+                    <td>{{ usuario.cpf }}</td>
+                    <td>{{ usuario.numero }}</td>
                     <td>
-                        <a href="{{ url_for('editar_usuario', id=u.id) }}" class="btn btn-editar" title="Editar">
-                            <i class="fas fa-edit"></i>
+                        {% if usuario.pagamento %}
+                            {% set vencimento = usuario.pagamento %}
+                            {# Usamos 'hoje' que é passado na rota #}
+                            {% if vencimento > hoje %}
+                                <span class="vencimento-ok">{{ vencimento.strftime('%d/%m/%Y') }}</span>
+                            {% else %}
+                                <span class="vencimento-atraso">{{ vencimento.strftime('%d/%m/%Y') }} (Atrasado)</span>
+                            {% endif %}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('registrar_pagamento') }}?usuario_id={{ usuario.id }}" class="btn-acao btn-pagamento">
+                            <i class="fas fa-dollar-sign"></i> Pagar
                         </a>
-                        <a href="{{ url_for('excluir_usuario', id=u.id) }}" class="btn btn-excluir"
-                           onclick="return confirm('Tem certeza que deseja excluir {{ u.nome }}?');" title="Excluir">
-                            <i class="fas fa-trash-alt"></i>
+                        <a href="{{ url_for('editar_usuario', id=usuario.id) }}" class="btn-acao btn-editar">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{{ url_for('excluir_usuario', id=usuario.id) }}" class="btn-acao btn-excluir" onclick="return confirm('Tem certeza que deseja excluir o usuário {{ usuario.nome }}?')">
+                            <i class="fas fa-trash-alt"></i> Excluir
                         </a>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="5">Nenhum associado encontrado.</td>
+                    <td colspan="5" style="text-align: center; color: #9ca3af; padding: 20px;">
+                        Nenhum associado encontrado.
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        <a href="{{ url_for('index') }}" class="voltar">
+            <i class="fas fa-arrow-left"></i> Voltar ao Painel
+        </a>
     </div>
 
-    <a href="{{ url_for('index') }}" class="voltar">
-        <i class="fas fa-arrow-left"></i> Voltar ao Painel
-    </a>
 </body>
 </html>
