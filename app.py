@@ -20,17 +20,20 @@ db = SQLAlchemy(app)
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-    numero = db.Column(db.String(20), nullable=False)
-    cep = db.Column(db.String(20), nullable=False)
-    rua = db.Column(db.String(120), nullable=False)
-    numero_casa = db.Column(db.String(20), nullable=True)  # Campo NOVO
-    bairro = db.Column(db.String(120), nullable=False)
-    cidade = db.Column(db.String(120), nullable=False)
-    estado = db.Column(db.String(2), nullable=False)
-    idade = db.Column(db.Integer, nullable=False)
-    pagamento = db.Column(db.Date, nullable=False)  # próximo vencimento
-    data_registro = db.Column(db.Date, default=date.today, nullable=False)  # Data de Associação
-
+    data_nascimento = db.Column(db.String(20))
+    cpf = db.Column(db.String(20))
+    rg = db.Column(db.String(20))
+    dependentes = db.Column(db.Text)
+    numero = db.Column(db.String(20))
+    pagamento = db.Column(db.Integer)
+    cep = db.Column(db.String(10))
+    endereco = db.Column(db.String(200))
+    numero_casa = db.Column(db.String(10))
+    bairro = db.Column(db.String(100))
+    cidade = db.Column(db.String(100))
+    estado = db.Column(db.String(2))
+    login = db.Column(db.String(50))
+    senha = db.Column(db.String(50))
 
 class Salao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
