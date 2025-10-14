@@ -2,104 +2,167 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório de Locações</title>
+    <title>Relatório de Mensalidades e Vencimentos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e4e6eb; padding: 20px; }
+        .container { max-width: 95%; margin: 20px auto; }
         h1 { text-align: center; margin-bottom: 30px; color: #1f2937; font-size: 2em; }
+        .voltar { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #4f46e5; font-weight: 600; }
 
-        .tabela-locacoes {
-            width: 95%;
-            margin: 20px auto;
-            border-collapse: collapse;
+        /* Estilos de Seção */
+        .section {
             background: #fff;
+            padding: 20px;
+            border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 10px;
-            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 1.5em;
+            color: #4f46e5;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
         }
 
-        .tabela-locacoes th, .tabela-locacoes td {
+        /* Estilos da Tabela */
+        .tabela {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .tabela th, .tabela td {
             padding: 12px;
             border-bottom: 1px solid #e5e7eb;
             text-align: left;
             font-size: 0.9em;
         }
-
-        .tabela-locacoes th {
-            background-color: #f59e0b; /* Laranja da Locação */
+        .tabela th {
+            background-color: #1f2937;
             color: white;
             font-weight: 700;
             text-transform: uppercase;
         }
-        .tabela-locacoes tr:nth-child(even) { background-color: #f9fafb; }
-        .tabela-locacoes tr:hover { background-color: #fffbeb; }
+        .tabela tr:nth-child(even) { background-color: #f9fafb; }
+        .tabela tr:hover { background-color: #f0f8ff; }
 
-        .voltar { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #4f46e5; font-weight: 600; }
-        .valor { font-weight: 700; color: #059669; }
-        .total { background: #e0f7fa; font-weight: 700; }
-        
-        /* NOVO: Estilos para a coluna de Ações */
-        .acoes a {
-            margin-right: 8px;
-            text-decoration: none;
-            font-size: 1.1em;
-            transition: color 0.2s;
+        /* Estilos de Status/Cores */
+        .data-atraso { color: #dc2626; font-weight: 600; }
+        .data-ok { color: #059669; font-weight: 600; }
+        .data-pagamento { color: #f59e0b; font-weight: 600; }
+
+        /* Estilos do Filtro */
+        .filter-form {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
         }
-        .acoes .btn-editar { color: #4f46e5; } /* Azul para Editar */
-        .acoes .btn-excluir { color: #dc2626; } /* Vermelho para Excluir */
-        .acoes .btn-editar:hover { color: #3730a3; }
-        .acoes .btn-excluir:hover { color: #991b1b; }
+        .filter-group { flex: 1; }
+        .filter-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 0.9em; }
+        .filter-group input[type="text"], .filter-group input[type="month"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .filter-form button {
+            padding: 10px 20px;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .filter-form button:hover { background-color: #3730a3; }
     </style>
 </head>
 <body>
-    <h1><i class="fas fa-calendar-check"></i> Relatório de Locações Registradas</h1>
+    <div class="container">
+        <h1><i class="fas fa-chart-line"></i> Relatório de Mensalidades</h1>
 
-    {% if locacoes %}
-    <div style="overflow-x: auto;">
-        <table class="tabela-locacoes">
-            <thead>
-                <tr>
-                    <th>Associado</th>
-                    <th>Local</th>
-                    <th>Data da Locação</th>
-                    <th>Forma Pagamento</th>
-                    <th>Valor Entrada</th>
-                    <th>Valor 2ª Parte</th>
-                    <th>Total da Locação</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for loc in locacoes %}
-                <tr>
-                    <td>{{ loc.usuario.nome }}</td>
-                    <td>{{ loc.local }}</td>
-                    <td>{{ loc.dia }}</td>
-                    <td>{{ loc.pagamento }}</td>
-                    <td class="valor">R$ {{ "%.2f" | format(loc.valor_entrada) }}</td>
-                    <td class="valor">R$ {{ "%.2f" | format(loc.valor_segunda_parte) }}</td>
-                    <td class="valor total">R$ {{ "%.2f" | format(loc.valor_entrada + loc.valor_segunda_parte) }}</td>
-                    
-                    <td class="acoes">
-                        <a href="{{ url_for('editar_locacao', locacao_id=loc.id) }}" class="btn-editar" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        
-                        <a href="{{ url_for('excluir_locacao', locacao_id=loc.id) }}" class="btn-excluir" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir esta locação?');">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <form class="filter-form" method="GET" action="{{ url_for('relatorio_mensalidades') }}">
+            <div class="filter-group" style="flex: 2;">
+                <label for="nome_pesquisa"><i class="fas fa-search"></i> Pesquisar Associado (Nome ou parte)</label>
+                <input type="text" id="nome_pesquisa" name="nome_pesquisa" value="{{ nome_pesquisa | default('') }}" placeholder="Digite o nome do associado">
+            </div>
+            <div class="filter-group" style="flex: 1;">
+                <label for="mes"><i class="fas fa-calendar-alt"></i> Filtrar Pagamentos por Mês</label>
+                <input type="month" id="mes" name="mes" value="{{ mes_selecionado }}">
+            </div>
+            <button type="submit"><i class="fas fa-filter"></i> Filtrar</button>
+        </form>
+
+        {% if nome_pesquisa %}
+            <p style="margin-bottom: 20px; font-weight: 600;">Resultados filtrados pelo nome:
+                <span style="color: #4f46e5;">"{{ nome_pesquisa }}"</span></p>
+        {% endif %}
+
+        <div class="section">
+            <div class="section-title" style="color: #dc2626;">
+                <i class="fas fa-exclamation-triangle"></i> Associados com Mensalidade em Atraso ({{ atrasadas | length }})
+            </div>
+            {% if atrasadas %}
+            <table class="tabela">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Data de Vencimento</th>
+                        <th>Telefone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in atrasadas %}
+                    <tr>
+                        <td>{{ usuario.nome }}</td>
+                        <td class="data-atraso">{{ usuario.pagamento.strftime('%d/%m/%Y') }} (Vencido)</td>
+                        <td>{{ usuario.numero | default('N/A') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p style="color: #059669; text-align: center;">Nenhum associado encontrado em atraso {{ 'com o nome pesquisado' if nome_pesquisa else 'hoje' }}.</p>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <div class="section-title" style="color: #f59e0b;">
+                <i class="fas fa-hand-holding-dollar"></i> Pagamentos Recebidos em {{ mes_selecionado }} ({{ pagamentos_mes | length }})
+            </div>
+            {% if pagamentos_mes %}
+            <table class="tabela">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Data do Pagamento</th>
+                        <th>Próximo Vencimento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pagamento in pagamentos_mes %}
+                    <tr>
+                        <td>{{ pagamento.usuario.nome }}</td>
+                        <td class="data-pagamento">{{ pagamento.data_pagamento.strftime('%d/%m/%Y') }}</td>
+                        <td class="data-ok">{{ pagamento.proximo_pagamento.strftime('%d/%m/%Y') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p style="color: #9ca3af; text-align: center;">Nenhum pagamento registrado {{ 'com o nome pesquisado' if nome_pesquisa else 'neste mês' }}.</p>
+            {% endif %}
+        </div>
+
+        <a href="{{ url_for('index') }}" class="voltar">
+            <i class="fas fa-arrow-left"></i> Voltar ao Painel
+        </a>
     </div>
-    {% else %}
-        <p style="text-align:center; padding: 20px; background: white; max-width: 600px; margin: 30px auto; border-radius: 8px;">Nenhuma locação registrada.</p>
-    {% endif %}
-
-    <a href="{{ url_for('index') }}" class="voltar">
-        <i class="fas fa-arrow-left"></i> Voltar ao Painel
-    </a>
 </body>
 </html>

@@ -90,9 +90,8 @@
     <div class="container">
         <h1>Cadastro de Usuário</h1>
 
-        <form action="/cadastrar" method="post">
-            
-            <!-- DADOS PESSOAIS -->
+        <form action="{{ url_for('cadastro') }}" method="post">
+
             <h2>Dados Pessoais</h2>
             <div class="form-row">
                 <div class="input-group" style="flex: 2;">
@@ -134,7 +133,6 @@
                 </div>
             </div>
 
-            <!-- ENDEREÇO -->
             <h2>Endereço</h2>
             <div class="form-row">
                 <div class="input-group" style="flex: 1;">
@@ -166,19 +164,6 @@
                 </div>
             </div>
 
-            <!-- ACESSO AO SISTEMA -->
-            <h2>Dados de Acesso</h2>
-            <div class="form-row">
-                <div class="input-group" style="flex: 1;">
-                    <label for="login">Login</label>
-                    <input type="text" id="login" name="login" required>
-                </div>
-                <div class="input-group" style="flex: 1;">
-                    <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha" required>
-                </div>
-            </div>
-
             <div class="btn-center">
                 <button type="submit">Cadastrar Usuário</button>
             </div>
@@ -186,10 +171,9 @@
         </form>
     </div>
 
-    <!-- SCRIPT: busca de CEP automática -->
     <script>
         document.getElementById('cep').addEventListener('blur', async function() {
-            const cep = this.value.replace(/\D/g, '');
+            const cep = this.value.replace(/\D/g, 'd');
             if (cep.length === 8) {
                 const url = `https://viacep.com.br/ws/${cep}/json/`;
                 const response = await fetch(url);

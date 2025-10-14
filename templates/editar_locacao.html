@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Locação</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e4e6eb; padding: 20px; }
+        .container { max-width: 600px; margin: 40px auto; padding: 30px; background: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #1f2937; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        input[type="text"], input[type="date"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #f59e0b; /* Laranja principal */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #d97706;
+        }
+        .alerta { background-color: #fff3cd; color: #856404; padding: 15px; border: 1px solid #ffeeba; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-edit"></i> Editar Locação #{{ locacao.id }}</h1>
+
+        <div class="alerta">
+            Editando locação registrada em: {{ locacao.dia }}
+        </div>
+
+        <form action="{{ url_for('editar_locacao', locacao_id=locacao.id) }}" method="post">
+
+            <div class="form-group">
+                <label for="usuario">Associado</label>
+                <select id="usuario" name="usuario" required>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" {% if usuario.id == locacao.usuario_id %}selected{% endif %}>
+                        {{ usuario.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="salao">Local da Locação</label>
+                <select id="salao" name="salao" required>
+                    <option value="Salao A" {% if locacao.local == 'Salao A' %}selected{% endif %}>Salão A</option>
+                    <option value="Salao B" {% if locacao.local == 'Salao B' %}selected{% endif %}>Salão B</option>
+                    </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dia">Data da Locação</label>
+                <input type="date" id="dia" name="dia" value="{{ locacao.dia }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pagamento">Forma de Pagamento</label>
+                <input type="text" id="pagamento" name="pagamento" value="{{ locacao.pagamento }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="valor_entrada">Valor de Entrada (R$)</label>
+                <input type="number" id="valor_entrada" name="valor_entrada" step="0.01" value="{{ locacao.valor_entrada | default(0.00) }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="valor_segunda_parte">Valor da 2ª Parte (R$)</label>
+                <input type="number" id="valor_segunda_parte" name="valor_segunda_parte" step="0.01" value="{{ locacao.valor_segunda_parte | default(0.00) }}" required>
+            </div>
+
+            <button type="submit"><i class="fas fa-save"></i> Salvar Alterações</button>
+            <a href="{{ url_for('relatorio_locacoes') }}" style="display: block; text-align: center; margin-top: 15px; color: #4f46e5; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Cancelar
+            </a>
+        </form>
+    </div>
+</body>
+</html>
