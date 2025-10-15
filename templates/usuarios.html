@@ -5,7 +5,6 @@
     <title>Lista de Associados</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* (Seu CSS aqui) */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e4e6eb; padding: 20px; }
         .container { max-width: 95%; margin: 20px auto; }
         h1 { text-align: center; margin-bottom: 30px; color: #1f2937; font-size: 2em; }
@@ -55,7 +54,13 @@
         .voltar { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #4f46e5; font-weight: 600; }
 
         /* Estilo da barra de busca */
-        .search-bar { margin-bottom: 20px; text-align: center; }
+        .search-bar { 
+            margin-bottom: 20px; 
+            display: flex; /* Permite alinhar itens na mesma linha */
+            justify-content: space-between; /* Espalha a busca e o botão de adicionar */
+            align-items: center;
+        }
+        .search-form { display: inline-flex; align-items: center; } /* Para agrupar a busca */
         .search-bar input[type="text"] {
             padding: 10px;
             width: 300px;
@@ -70,6 +75,20 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
+        }
+        .btn-adicionar {
+            padding: 10px 15px;
+            background-color: #f59e0b; /* Laranja para destaque */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .btn-adicionar:hover {
+            background-color: #d97706;
         }
     </style>
 </head>
@@ -87,13 +106,19 @@
             {% endif %}
         {% endwith %}
 
-        <form class="search-bar" method="GET" action="{{ url_for('usuarios') }}">
-            <input type="text" name="nome" placeholder="Pesquisar por nome do associado" value="{{ request.args.get('nome', '') }}">
-            <button type="submit"><i class="fas fa-search"></i> Buscar</button>
-            {% if request.args.get('nome') %}
-                <a href="{{ url_for('usuarios') }}" class="btn-acao btn-excluir" style="margin-left: 10px;">Limpar Busca</a>
-            {% endif %}
-        </form>
+        <div class="search-bar">
+            <form class="search-form" method="GET" action="{{ url_for('usuarios') }}">
+                <input type="text" name="nome" placeholder="Pesquisar por nome do associado" value="{{ request.args.get('nome', '') }}">
+                <button type="submit"><i class="fas fa-search"></i> Buscar</button>
+                {% if request.args.get('nome') %}
+                    <a href="{{ url_for('usuarios') }}" class="btn-acao btn-excluir" style="margin-left: 10px;">Limpar Busca</a>
+                {% endif %}
+            </form>
+
+            <a href="{{ url_for('cadastro') }}" class="btn-adicionar">
+                <i class="fas fa-user-plus"></i> Adicionar Novo Associado
+            </a>
+        </div>
 
         <table class="tabela">
             <thead>
